@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b7a75">
+<title>Тренировки</title>
+<style>
+:root{--bg:#eceff1;--card:#fff;--ink:#17212b;--mute:#6b7782;--line:#d3dae0;--acc:#0b7a75;--on:#fff;color-scheme:light dark}
+@media(prefers-color-scheme:dark){:root{--bg:#10161c;--card:#19222b;--ink:#e8edf1;--mute:#8a97a3;--line:#2c3844;--acc:#3cc4bb;--on:#08201f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,Roboto,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:560px;margin:0 auto;padding:12px 14px 40px}
+#tabs{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
+.tab{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 0 6px;font:inherit;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tab small{font-size:11px;font-weight:400;color:var(--mute)}
+.tab.on{background:var(--acc);border-color:var(--acc);color:var(--on)}
+.tab.on small{color:var(--on)}
+h1{font-size:26px;margin:0}
+#prog{color:var(--mute);margin:2px 0 14px;min-height:22px}
+.ex{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px 12px;margin-bottom:10px}
+.top{display:flex;gap:10px;align-items:center}
+.chk{width:34px;height:34px;flex:none;border-radius:50%;border:2px solid var(--mute);background:none;color:transparent;font-size:18px;line-height:1;padding:0}
+.done .chk{background:var(--acc);border-color:var(--acc);color:var(--on)}
+.nm{flex:1;min-width:0;font:inherit;font-weight:600;font-size:17px;border:0;background:none;color:inherit;padding:6px 0;outline:none}
+.done .nm{text-decoration:line-through;color:var(--mute)}
+.x{border:0;background:none;color:var(--mute);font-size:18px;padding:6px 8px}
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.nums label{font-size:13px;color:var(--mute);display:flex;flex-direction:column;gap:3px}
+.nums input{width:100%;padding:10px 4px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;font-size:18px;text-align:center}
+input:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.empty{color:var(--mute);text-align:center;padding:24px 0}
+.add{width:100%;padding:14px;border:2px dashed var(--line);border-radius:12px;background:none;color:var(--acc);font:inherit;font-weight:600}
+.link{display:block;margin:28px auto 0;border:0;background:none;color:var(--mute);font:inherit;text-decoration:underline}
+dialog{width:min(92vw,480px);border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);padding:16px}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog h2{margin:0 0 6px;font-size:20px}
+dialog p{margin:0 0 10px;color:var(--mute);font-size:14px}
+textarea{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);padding:8px;font:13px monospace}
+dialog button{margin:8px 8px 0 0;padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+dialog button.main{background:var(--acc);border-color:var(--acc);color:var(--on)}
+</style>
+</head>
+<body>
+<main>
+  <div id="tabs"></div>
+  <h1 id="title"></h1>
+  <div id="prog"></div>
+  <div id="list"></div>
+  <button class="add" data-act="add">+ Добавить упражнение</button>
+  <button class="link" id="open">Данные и сброс</button>
+</main>
+
+<dialog id="dlg">
+  <h2>Данные</h2>
+  <p>Скопируй текст и сохрани в заметках. Его можно вставить обратно, например на новом телефоне.</p>
+  <textarea id="bk" rows="6"></textarea>
+  <div>
+    <button class="main" id="cp">Скопировать</button>
+    <button id="rs">Восстановить из текста</button>
+    <button id="rst">Снять все отметки</button>
+    <button id="cl">Закрыть</button>
+  </div>
+</dialog>
+
+<script>
+const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const FULL=['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'];
+const KEY='workout-v1';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const empty=()=>({days:[[],[],[],[],[],[],[]]});
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!S||!Array.isArray(S.days)||S.days.length!==7)S=empty();
+let sel=(new Date().getDay()+6)%7;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+function render(focusId){
+  $('#tabs').innerHTML=DAYS.map((d,i)=>{
+    const l=S.days[i],n=l.filter(e=>e.d).length;
+    return `<button class="tab${i===sel?' on':''}" data-day="${i}">${d}<small>${l.length?n+'/'+l.length:'·'}</small></button>`;
+  }).join('');
+  const l=S.days[sel],n=l.filter(e=>e.d).length;
+  $('#title').textContent=FULL[sel];
+  $('#prog').textContent=l.length?`Выполнено ${n} из ${l.length}`:'';
+  $('#list').innerHTML=l.length?l.map(e=>`
+    <div class="ex${e.d?' done':''}">
+      <div class="top">
+        <button class="chk" data-act="done" data-id="${e.id}" aria-label="Выполнено">✓</button>
+        <input class="nm" data-id="${e.id}" data-f="n" value="${esc(e.n)}" placeholder="Название упражнения">
+        <button class="x" data-act="del" data-id="${e.id}" aria-label="Удалить">✕</button>
+      </div>
+      <div class="nums">
+        <label>Подходы<input data-id="${e.id}" data-f="s" inputmode="numeric" value="${esc(e.s)}"></label>
+        <label>Повторы<input data-id="${e.id}" data-f="r" inputmode="numeric" value="${esc(e.r)}"></label>
+        <label>Вес, кг<input data-id="${e.id}" data-f="w" inputmode="decimal" value="${esc(e.w)}"></label>
+      </div>
+    </div>`).join(''):'<p class="empty">В этот день пока нет упражнений.<br>Добавь первое.</p>';
+  if(focusId){const el=document.querySelector(`[data-id="${focusId}"][data-f="n"]`);if(el)el.focus()}
+}
+
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('[data-act],[data-day]');
+  if(!b)return;
+  if(b.dataset.day!==undefined){sel=+b.dataset.day;render();return}
+  const l=S.days[sel],i=l.findIndex(e=>e.id===b.dataset.id);
+  if(b.dataset.act==='done'){l[i].d=!l[i].d;save();render()}
+  else if(b.dataset.act==='del'){
+    if(!l[i].n||confirm('Удалить «'+l[i].n+'»?')){l.splice(i,1);save();render()}
+  }
+  else if(b.dataset.act==='add'){
+    const e={id:uid(),n:'',s:'',r:'',w:'',d:false};
+    l.push(e);save();render(e.id);
+  }
+});
+
+document.addEventListener('input',ev=>{
+  const t=ev.target,id=t.dataset.id;
+  if(!id)return;
+  const e=S.days[sel].find(x=>x.id===id);
+  if(e){e[t.dataset.f]=t.value;save()}
+});
+
+$('#open').onclick=()=>{$('#bk').value=JSON.stringify(S);$('#dlg').showModal()};
+$('#cl').onclick=()=>$('#dlg').close();
+$('#cp').onclick=async()=>{
+  const t=$('#bk');t.value=JSON.stringify(S);
+  try{await navigator.clipboard.writeText(t.value)}catch(e){t.select();document.execCommand('copy')}
+  $('#cp').textContent='Скопировано';setTimeout(()=>$('#cp').textContent='Скопировать',1500);
+};
+$('#rs').onclick=()=>{
+  try{
+    const d=JSON.parse($('#bk').value);
+    if(!Array.isArray(d.days)||d.days.length!==7)throw 0;
+    d.days=d.days.map(l=>(Array.isArray(l)?l:[]).map(e=>({id:e.id||uid(),n:String(e.n||''),s:String(e.s||''),r:String(e.r||''),w:String(e.w||''),d:!!e.d})));
+    if(!confirm('Заменить текущие данные восстановленными?'))return;
+    S=d;save();render();$('#dlg').close();
+  }catch(e){alert('Не получилось прочитать текст. Вставь его целиком, как скопировал.')}
+};
+$('#rst').onclick=()=>{
+  if(!confirm('Снять отметки «выполнено» со всех упражнений? Подходы, повторы и веса останутся.'))return;
+  S.days.forEach(l=>l.forEach(e=>e.d=false));save();render();$('#dlg').close();
+};
+render();
+</script>
+</body>
+</html>
