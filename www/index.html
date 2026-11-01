@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b7a75">
+<title>Тренировки</title>
+<style>
+:root{--bg:#eceff1;--card:#fff;--ink:#17212b;--mute:#6b7782;--line:#d3dae0;--acc:#0b7a75;--on:#fff;color-scheme:light dark}
+@media(prefers-color-scheme:dark){:root{--bg:#10161c;--card:#19222b;--ink:#e8edf1;--mute:#8a97a3;--line:#2c3844;--acc:#3cc4bb;--on:#08201f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,Roboto,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:560px;margin:0 auto;padding:0 14px 60px}
+#bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);padding:12px 0 8px}
+#tabs{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.tab{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 0 6px;font:inherit;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tab small{font-size:11px;font-weight:400;color:var(--mute)}
+.tab.on{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+#sub{display:flex;gap:6px;margin-top:8px;align-items:center}
+.sp{flex:1}
+.pill{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:18px;padding:6px 14px;font:inherit;font-size:14px}
+.pill.on{background:var(--acc);border-color:var(--acc);color:var(--on)}
+.pill.acc{color:var(--acc);border-color:var(--acc)}
+.dragmode .tab,.dragmode .pill[data-drop]{border:2px dashed var(--acc)}
+.over{background:var(--acc)!important;color:var(--on)!important}
+.over small{color:var(--on)!important}
+#prog{color:var(--mute);margin:6px 0 4px;min-height:22px;font-size:14px}
+.gh{font-size:18px;margin:16px 0 8px;display:flex;justify-content:space-between;align-items:baseline}
+.gh small{color:var(--mute);font-weight:400;font-size:14px}
+.ex{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px 12px;margin-bottom:10px}
+.ex.dragging{opacity:.35}
+.ghost{position:fixed;z-index:50;pointer-events:none;opacity:.92;box-shadow:0 8px 24px rgba(0,0,0,.3);margin:0}
+.top{display:flex;gap:8px;align-items:center}
+.grip{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;border:0;background:none;color:var(--mute);font-size:24px;line-height:1;padding:6px 6px 6px 0;cursor:grab}
+.chk{width:34px;height:34px;flex:none;border-radius:50%;border:2px solid var(--mute);background:none;color:transparent;font-size:18px;line-height:1;padding:0}
+.done .chk{background:var(--acc);border-color:var(--acc);color:var(--on)}
+.nm{flex:1;min-width:0;font:inherit;font-weight:600;font-size:17px;border:0;background:none;color:inherit;padding:6px 0;outline:none}
+.done .nm{text-decoration:line-through;color:var(--mute)}
+.x{border:0;background:none;color:var(--mute);font-size:18px;padding:6px 4px}
+.grp{width:100%;border:0;border-bottom:1px dashed var(--line);background:none;color:var(--acc);font:inherit;font-size:14px;padding:2px 0 6px 0;outline:none}
+.nums{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;margin-top:8px}
+.nums label,.nums .f{font-size:13px;color:var(--mute);display:flex;flex-direction:column;gap:3px}
+.nums input{width:100%;padding:10px 4px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;font-size:18px;text-align:center}
+.step{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);overflow:hidden}
+.step button{flex:none;width:36px;height:42px;border:0;background:none;color:var(--acc);font-size:22px;padding:0}
+.step b{flex:1;text-align:center;font-size:18px;font-weight:600}
+input:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.empty{color:var(--mute);text-align:center;padding:24px 0}
+.add{width:100%;margin-top:6px;padding:14px;border:2px dashed var(--line);border-radius:12px;background:none;color:var(--acc);font:inherit;font-weight:600}
+.link{display:block;margin:28px auto 0;border:0;background:none;color:var(--mute);font:inherit;text-decoration:underline}
+dialog{width:min(92vw,480px);border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);padding:16px}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog h2{margin:0 0 6px;font-size:20px}
+dialog p{margin:0 0 10px;color:var(--mute);font-size:14px}
+textarea{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);padding:8px;font:13px monospace}
+dialog button{margin:8px 8px 0 0;padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+dialog button.main{background:var(--acc);border-color:var(--acc);color:var(--on)}
+.mrow{display:grid;grid-template-columns:1.3fr 1.2fr 44px 64px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:15px}
+.mrow.h{color:var(--mute);font-size:13px}
+.mrow.t{font-weight:600;border-bottom:0}
+.mrow .v{text-align:right}
+.mbar{height:8px;border-radius:4px;background:var(--bg);overflow:hidden}
+.mbar i{display:block;height:100%;background:var(--acc);border-radius:4px}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60;max-width:90vw;text-align:center}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<main>
+  <div id="bar">
+    <div id="tabs"></div>
+    <div id="sub">
+      <button class="pill" data-filter="all">Все</button>
+      <button class="pill" data-filter="none" data-drop="none">Без дня</button>
+      <span class="sp"></span>
+      <button class="pill acc" id="mus">Мышцы</button>
+    </div>
+  </div>
+  <div id="prog"></div>
+  <div id="list"></div>
+  <button class="add" data-act="add">+ Добавить упражнение</button>
+  <button class="link" id="open">Данные и новая неделя</button>
+</main>
+<datalist id="groups"></datalist>
+<div id="toast"></div>
+
+<dialog id="mdlg">
+  <h2>Подходы по группам мышц</h2>
+  <p>За неделю: по плану и уже выполненные (отмеченные галочкой).</p>
+  <div id="mtable"></div>
+  <button class="main" id="mcl">Закрыть</button>
+</dialog>
+
+<dialog id="dlg">
+  <h2>Данные</h2>
+  <p>Скопируй текст и сохрани в заметках. Его можно вставить обратно, например на новом телефоне.</p>
+  <textarea id="bk" rows="6"></textarea>
+  <div>
+    <button class="main" id="cp">Скопировать</button>
+    <button id="rs">Восстановить из текста</button>
+    <button id="rst">Начать новую неделю</button>
+    <button id="cl">Закрыть</button>
+  </div>
+</dialog>
+
+<script>
+const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const FULL=['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'];
+const GROUPS=['Ягодицы','Квадрицепс','Бицепс бедра','Икры','Спина','Грудь','Плечи','Бицепс','Трицепс','Пресс'];
+const KEY='workout-v2';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const load=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+const norm=e=>({id:e.id||uid(),n:String(e.n||''),g:String(e.g||''),s:Math.max(1,parseInt(e.s)||3),r:String(e.r||''),w:String(e.w||''),d:!!e.d,day:Number.isInteger(e.day)&&e.day>=0&&e.day<7?e.day:null});
+function fromAny(o){
+  if(!o)return null;
+  if(Array.isArray(o.items))return{items:o.items.map(norm),week:o.week||null};
+  if(Array.isArray(o.days)&&o.days.length===7){
+    const items=[];
+    o.days.forEach((l,i)=>(Array.isArray(l)?l:[]).forEach(e=>items.push(norm({...e,day:i}))));
+    return{items,week:null};
+  }
+  return null;
+}
+let S=fromAny(load(KEY))||fromAny(load('workout-v1'))||{items:[],week:null};
+let filter='all';
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function weekKey(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+function checkWeek(){
+  const k=weekKey();let reset=false;
+  if(S.week&&S.week!==k){S.items.forEach(e=>e.d=false);reset=true}
+  S.week=k;save();return reset;
+}
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2200)}
+const dayName=k=>k===null?'Не распределено':FULL[k];
+
+function card(e){
+  return `<div class="ex${e.d?' done':''}">
+    <div class="top">
+      <button class="grip" data-grip="${e.id}" aria-label="Перетащить на день">≡</button>
+      <button class="chk" data-act="done" data-id="${e.id}" aria-label="Выполнено">✓</button>
+      <input class="nm" data-id="${e.id}" data-f="n" value="${esc(e.n)}" placeholder="Название упражнения">
+      <button class="x" data-act="del" data-id="${e.id}" aria-label="Удалить">✕</button>
+    </div>
+    <input class="grp" list="groups" data-id="${e.id}" data-f="g" value="${esc(e.g)}" placeholder="Группа мышц">
+    <div class="nums">
+      <div class="f">Подходы<div class="step"><button data-act="dec" data-id="${e.id}" aria-label="Меньше">−</button><b data-sv="${e.id}">${e.s}</b><button data-act="inc" data-id="${e.id}" aria-label="Больше">+</button></div></div>
+      <label>Повторы<input data-id="${e.id}" data-f="r" inputmode="numeric" value="${esc(e.r)}"></label>
+      <label>Вес, кг<input data-id="${e.id}" data-f="w" inputmode="decimal" value="${esc(e.w)}"></label>
+    </div>
+  </div>`;
+}
+function updateDL(){
+  const seen=new Set(),all=[];
+  [...GROUPS,...S.items.map(e=>e.g.trim())].forEach(g=>{const k=g.toLowerCase();if(g&&!seen.has(k)){seen.add(k);all.push(g)}});
+  $('#groups').innerHTML=all.map(g=>`<option value="${esc(g)}">`).join('');
+}
+function render(focusId){
+  $('#tabs').innerHTML=DAYS.map((d,i)=>{
+    const l=S.items.filter(e=>e.day===i),n=l.filter(e=>e.d).length;
+    return `<button class="tab${filter===i?' on':''}" data-day="${i}" data-drop="${i}">${d}<small>${l.length?n+'/'+l.length:'·'}</small></button>`;
+  }).join('');
+  document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('on',b.dataset.filter===filter));
+  const total=S.items.length,done=S.items.filter(e=>e.d).length;
+  $('#prog').textContent=total?`Выполнено ${done} из ${total}`:'';
+  const order=filter==='all'?[null,0,1,2,3,4,5,6]:[filter==='none'?null:filter];
+  let html='';
+  order.forEach(k=>{
+    const l=S.items.filter(e=>e.day===k);
+    if(!l.length){if(filter!=='all')html+='<p class="empty">Здесь пока пусто.<br>Перетащи сюда упражнение за значок ≡ или добавь новое.</p>';return}
+    html+=`<h2 class="gh">${dayName(k)}<small>${l.filter(e=>e.d).length}/${l.length}</small></h2>`+l.map(card).join('');
+  });
+  if(!total)html='<p class="empty">Пока нет упражнений.<br>Нажми «Добавить упражнение» и составь свой недельный план.</p>';
+  $('#list').innerHTML=html;
+  updateDL();
+  if(focusId){const el=document.querySelector(`[data-id="${focusId}"][data-f="n"]`);if(el)el.focus()}
+}
+
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('[data-act],[data-day],[data-filter]');
+  if(!b)return;
+  if(b.dataset.day!==undefined){const d=+b.dataset.day;filter=filter===d?'all':d;render();return}
+  if(b.dataset.filter){filter=b.dataset.filter;render();return}
+  const a=b.dataset.act;
+  if(a==='add'){
+    const e=norm({day:typeof filter==='number'?filter:null});
+    S.items.push(e);save();render(e.id);return;
+  }
+  const e=S.items.find(x=>x.id===b.dataset.id);
+  if(!e)return;
+  if(a==='done'){e.d=!e.d;save();render()}
+  else if(a==='del'){if(!e.n||confirm('Удалить «'+e.n+'»?')){S.items=S.items.filter(x=>x!==e);save();render()}}
+  else if(a==='inc'||a==='dec'){
+    e.s=Math.max(1,e.s+(a==='inc'?1:-1));save();
+    const el=document.querySelector(`[data-sv="${e.id}"]`);if(el)el.textContent=e.s;
+  }
+});
+document.addEventListener('input',ev=>{
+  const t=ev.target,id=t.dataset.id,f=t.dataset.f;
+  if(!id||!f)return;
+  const e=S.items.find(x=>x.id===id);
+  if(e){e[f]=t.value;save()}
+});
+document.addEventListener('change',ev=>{if(ev.target.dataset&&ev.target.dataset.f==='g')updateDL()});
+
+/* Перетаскивание упражнения на день */
+let drag=null;
+function endDrag(){
+  if(!drag)return;
+  drag.ghost.remove();drag.card.classList.remove('dragging');
+  if(drag.target)drag.target.classList.remove('over');
+  document.body.classList.remove('dragmode');
+  const d=drag;drag=null;return d;
+}
+document.addEventListener('pointerdown',ev=>{
+  const g=ev.target.closest('[data-grip]');
+  if(!g||drag)return;
+  ev.preventDefault();
+  const card=g.closest('.ex'),r=card.getBoundingClientRect(),ghost=card.cloneNode(true);
+  ghost.classList.add('ghost');
+  ghost.style.width=r.width+'px';ghost.style.left=r.left+'px';ghost.style.top=r.top+'px';
+  document.body.appendChild(ghost);
+  card.classList.add('dragging');
+  document.body.classList.add('dragmode');
+  drag={id:g.dataset.grip,ghost,card,dx:ev.clientX-r.left,dy:ev.clientY-r.top,target:null};
+  try{g.setPointerCapture(ev.pointerId)}catch(e){}
+});
+document.addEventListener('pointermove',ev=>{
+  if(!drag)return;
+  drag.ghost.style.left=(ev.clientX-drag.dx)+'px';
+  drag.ghost.style.top=(ev.clientY-drag.dy)+'px';
+  const el=document.elementFromPoint(ev.clientX,ev.clientY),t=el&&el.closest('[data-drop]');
+  if(t!==drag.target){
+    if(drag.target)drag.target.classList.remove('over');
+    if(t)t.classList.add('over');
+    drag.target=t;
+  }
+});
+document.addEventListener('pointerup',()=>{
+  const d=endDrag();
+  if(d&&d.target){
+    const v=d.target.dataset.drop,e=S.items.find(x=>x.id===d.id);
+    if(e){e.day=v==='none'?null:+v;save();render();toast('Перенесено: '+(e.day===null?'без дня':FULL[e.day]))}
+  }
+});
+document.addEventListener('pointercancel',()=>endDrag());
+
+/* Таблица по группам мышц */
+$('#mus').onclick=()=>{
+  const m=new Map();
+  S.items.forEach(e=>{
+    const name=e.g.trim()||'Без группы',k=name.toLowerCase();
+    if(!m.has(k))m.set(k,{name,p:0,d:0});
+    const r=m.get(k);r.p+=e.s;if(e.d)r.d+=e.s;
+  });
+  const rows=[...m.values()].sort((a,b)=>b.p-a.p),mx=Math.max(1,...rows.map(r=>r.p));
+  const tp=rows.reduce((s,r)=>s+r.p,0),td=rows.reduce((s,r)=>s+r.d,0);
+  $('#mtable').innerHTML=rows.length
+    ?'<div class="mrow h"><span>Группа</span><span></span><span class="v">План</span><span class="v">Сделано</span></div>'
+      +rows.map(r=>`<div class="mrow"><span>${esc(r.name)}</span><span class="mbar"><i style="width:${Math.round(r.p/mx*100)}%"></i></span><span class="v">${r.p}</span><span class="v">${r.d}</span></div>`).join('')
+      +`<div class="mrow t"><span>Всего</span><span></span><span class="v">${tp}</span><span class="v">${td}</span></div>`
+    :'<p>Пока нет упражнений.</p>';
+  $('#mdlg').showModal();
+};
+$('#mcl').onclick=()=>$('#mdlg').close();
+
+/* Данные и новая неделя */
+$('#open').onclick=()=>{$('#bk').value=JSON.stringify(S);$('#dlg').showModal()};
+$('#cl').onclick=()=>$('#dlg').close();
+$('#cp').onclick=async()=>{
+  const t=$('#bk');t.value=JSON.stringify(S);
+  try{await navigator.clipboard.writeText(t.value)}catch(e){t.select();document.execCommand('copy')}
+  $('#cp').textContent='Скопировано';setTimeout(()=>$('#cp').textContent='Скопировать',1500);
+};
+$('#rs').onclick=()=>{
+  try{
+    const d=fromAny(JSON.parse($('#bk').value));
+    if(!d)throw 0;
+    if(!confirm('Заменить текущие данные восстановленными?'))return;
+    S=d;save();checkWeek();render();$('#dlg').close();
+  }catch(e){alert('Не получилось прочитать текст. Вставь его целиком, как скопировал.')}
+};
+$('#rst').onclick=()=>{
+  if(!confirm('Снять отметки «выполнено» со всех упражнений? План, подходы и веса останутся.'))return;
+  S.items.forEach(e=>e.d=false);save();render();$('#dlg').close();
+};
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden&&checkWeek()){render();toast('Новая неделя: отметки сняты')}
+});
+
+const newWeek=checkWeek();
+render();
+if(newWeek)toast('Новая неделя: отметки сняты');
+</script>
+</body>
+</html>
