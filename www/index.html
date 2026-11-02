@@ -306,4 +306,30 @@ document.addEventListener('pointercancel',()=>endDrag());
 
 /* Данные и новая неделя */
 $('#cl').onclick=()=>$('#dlg').close();
-$('#cp').onclick=async
+$('#cp').onclick=async()=>{
+  const t=$('#bk');t.value=JSON.stringify(S);
+  try{await navigator.clipboard.writeText(t.value)}catch(e){t.select();document.execCommand('copy')}
+  $('#cp').textContent='Скопировано';setTimeout(()=>$('#cp').textContent='Скопировать',1500);
+};
+$('#rs').onclick=()=>{
+  try{
+    const d=fromAny(JSON.parse($('#bk').value));
+    if(!d)throw 0;
+    if(!confirm('Заменить текущие данные восстановленными?'))return;
+    S=d;save();checkWeek();render();$('#dlg').close();
+  }catch(e){alert('Не получилось прочитать текст. Вставь его целиком, как скопировал.')}
+};
+$('#rst').onclick=()=>{
+  if(!confirm('Снять отметки «выполнено» со всех подходов? План, повторы и веса останутся.'))return;
+  S.items.forEach(e=>e.sets.forEach(s=>s.d=false));save();render();$('#dlg').close();
+};
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden&&checkWeek()){viewDay=todayIdx();render();toast('Новая неделя: отметки сняты')}
+});
+
+const newWeek=checkWeek();
+render();
+if(newWeek)toast('Новая неделя: отметки сняты');
+</script>
+</body>
+</html>
