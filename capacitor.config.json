@@ -1,5 +1,8 @@
 {
   "appId": "com.mytrain.log",
   "appName": "Тренировки",
-  "webDir": "www"
+  "webDir": "www",
+  "android": {
+    "useLegacyBridge": true
+  }
 }
