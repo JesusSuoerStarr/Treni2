@@ -152,6 +152,9 @@ svg.ring{width:180px;height:180px}
 </dialog>
 
 <script>
+function showErr(m){let el=document.getElementById('errb');if(!el){el=document.createElement('pre');el.id='errb';el.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99;margin:0;padding:8px 10px;background:#b00020;color:#fff;font:12px/1.3 monospace;white-space:pre-wrap;max-height:40vh;overflow:auto';el.onclick=()=>el.remove();document.body.appendChild(el)}el.textContent+=m+'\n'}
+window.addEventListener('error',e=>showErr('ERR '+e.message+' (строка '+(e.lineno||'?')+')'));
+window.addEventListener('unhandledrejection',e=>showErr('PROMISE '+(e.reason&&(e.reason.message||e.reason.code)||e.reason)));
 const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const FULL=['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'];
 const GROUPS=['Ягодицы','Квадрицепс','Бицепс бедра','Икры','Спина','Грудь','Плечи','Бицепс','Трицепс','Пресс'];
@@ -186,6 +189,7 @@ function fromAny(o){
   return null;
 }
 let S=fromAny(load(KEY))||fromAny(load('workout-v2'))||fromAny(load('workout-v1'))||{items:[],week:null,...ext({})};
+(function(){const e=ext(S);['runs','steps','plan','cfg'].forEach(k=>{if(!S[k])S[k]=e[k]})})();
 const todayIdx=()=>(new Date().getDay()+6)%7;
 let tab='today',filter='all',viewDay=todayIdx();
 const opened=new Set();
@@ -268,7 +272,8 @@ function updateDL(){
   $('#groups').innerHTML=all.map(g=>`<option value="${esc(g)}">`).join('');
 }
 function render(focusId){
-  $('#view').innerHTML=tab==='today'?viewToday():tab==='plan'?viewPlan():tab==='run'?viewRun():tab==='steps'?viewSteps():viewMuscles();
+  try{$('#view').innerHTML=tab==='today'?viewToday():tab==='plan'?viewPlan():tab==='run'?viewRun():tab==='steps'?viewSteps():viewMuscles()}
+  catch(e){showErr('Экран «'+tab+'»: '+e.message);$('#view').innerHTML='<p class="empty">Этот экран не открылся.<br>Красная плашка сверху показывает причину.</p>'}
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
   updateDL();
   if(tab==='run')paintRun();
