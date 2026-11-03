@@ -16,7 +16,13 @@ jobs:
           java-version: 17
       - run: npm install
       - run: npx cap add android
+      - name: Add step counter, permissions and version number
+        run: bash apply.sh
       - run: npx cap sync android
+      - name: Use the fixed signing key
+        run: |
+          mkdir -p ~/.android
+          cp debug.keystore ~/.android/debug.keystore
       - run: ./gradlew assembleDebug
         working-directory: android
       - uses: actions/upload-artifact@v4
