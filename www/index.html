@@ -85,6 +85,43 @@ dialog button{margin:8px 8px 0 0;padding:10px 14px;border-radius:12px;border:1px
 dialog button.main{background:var(--acc);border-color:var(--acc);color:var(--on)}
 #toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60;max-width:90vw;text-align:center}
 #toast.show{opacity:1}
+.rc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin-bottom:12px}
+.rc b{display:block}
+.rrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rrow>div{min-width:0}
+.rc .pb{margin:8px 0 0}
+.btn{border:0;border-radius:16px;background:var(--acc);color:var(--on);font-weight:600;padding:12px 18px}
+.btn.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.btn.out{background:none;border:1px solid var(--acc);color:var(--acc)}
+.btn.wide{display:block;width:100%;padding:16px;font-size:18px}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.bigt{font-size:52px;font-weight:700;text-align:center;line-height:1.1;margin:6px 0;font-variant-numeric:tabular-nums}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.mt{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
+.mt small{display:block;color:var(--mute);font-size:12px}
+.mt b{font-size:22px;font-variant-numeric:tabular-nums}
+.rmap{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:6px;margin:8px 0}
+svg.rm{width:100%;height:auto;display:block}
+.gps{display:inline-block;font-size:12px;padding:3px 10px;border-radius:12px;background:var(--soft);color:var(--mute)}
+.gps.ok{background:var(--ok);color:var(--on)}
+.rli{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;padding:12px 0;border:0;border-bottom:1px solid var(--line);background:none;text-align:left}
+.rli:last-child{border-bottom:0}
+.rli small{color:var(--mute);display:block;font-size:13px}
+.sbar{display:flex;align-items:flex-end;gap:6px;height:120px;margin-top:8px}
+.sbar>div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:3px;font-size:11px;color:var(--mute)}
+.sbar i{display:block;width:100%;border-radius:6px 6px 2px 2px;background:var(--soft);min-height:2px}
+.sbar i.g{background:var(--ok)}
+.sbar i.t{background:var(--acc)}
+.ringw{text-align:center;margin:6px 0}
+svg.ring{width:180px;height:180px}
+.cfg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cfg label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mute)}
+.cfg input,.rp input{width:100%;height:42px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;font-size:16px;text-align:center;padding:0 4px;min-width:0}
+.rp{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:8px 0}
+.rp label{display:flex;flex-direction:column;align-items:center;font-size:12px;color:var(--mute);gap:4px}
+.warn{background:var(--soft);border-radius:14px;padding:10px 12px;font-size:14px;margin-bottom:12px}
+.spl{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.spl:last-child{border-bottom:0}
 </style>
 </head>
 <body>
@@ -92,6 +129,8 @@ dialog button.main{background:var(--acc);border-color:var(--acc);color:var(--on)
 <nav id="nav">
   <button data-tab="today"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>Сегодня</button>
   <button data-tab="plan"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>План</button>
+  <button data-tab="run"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/></svg>Бег</button>
+  <button data-tab="steps"><svg viewBox="0 0 24 24"><circle cx="13" cy="4" r="1"/><path d="M7 21l3-4M16 21l-2-4-3-3 1-6M6 12l2-3 4-1 3 3 3 1"/></svg>Шаги</button>
   <button data-tab="muscles"><svg viewBox="0 0 24 24"><path d="M5 20V12M12 20V5M19 20v-9"/></svg>Мышцы</button>
 </nav>
 <datalist id="groups"></datalist>
@@ -99,10 +138,13 @@ dialog button.main{background:var(--acc);border-color:var(--acc);color:var(--on)
 
 <dialog id="dlg">
   <h2>Данные</h2>
-  <p>Скопируй текст и сохрани в заметках. Его можно вставить обратно, например на новом телефоне.</p>
+  <p>Сохрани копию в файл или скопируй текст в заметки. Планы, тренировки, пробежки и шаги можно вернуть обратно, например на новом телефоне.</p>
   <textarea id="bk" rows="6"></textarea>
   <div>
-    <button class="main" id="cp">Скопировать</button>
+    <button class="main" id="sv">Сохранить в файл</button>
+    <button id="ld">Загрузить из файла</button>
+    <input type="file" id="bf" accept=".json,application/json,text/plain" hidden>
+    <button id="cp">Скопировать</button>
     <button id="rs">Восстановить из текста</button>
     <button id="rst">Начать новую неделю</button>
     <button id="cl">Закрыть</button>
@@ -126,17 +168,24 @@ const norm=e=>{
   const sets=mkSets(e);if(!sets.length)sets.push({r:'',w:'',d:false});
   return{id:e.id||uid(),n:String(e.n||''),g:String(e.g||''),sets,day:Number.isInteger(e.day)&&e.day>=0&&e.day<7?e.day:null};
 };
+const ext=o=>({
+  runs:Array.isArray(o.runs)?o.runs.filter(r=>r&&Array.isArray(r.pts)):[],
+  steps:(o.steps&&typeof o.steps==='object'&&!Array.isArray(o.steps))?o.steps:{},
+  sst:(o.sst&&typeof o.sst.c==='number')?o.sst:null,
+  plan:(Array.isArray(o.plan)&&o.plan.length===7)?o.plan.map(v=>+v>0?+v:null):[null,null,null,null,null,null,null],
+  cfg:{goal:+(o.cfg&&o.cfg.goal)||10000,stride:+(o.cfg&&o.cfg.stride)||75}
+});
 function fromAny(o){
   if(!o)return null;
-  if(Array.isArray(o.items))return{items:o.items.map(norm),week:o.week||null};
+  if(Array.isArray(o.items))return{items:o.items.map(norm),week:o.week||null,...ext(o)};
   if(Array.isArray(o.days)&&o.days.length===7){
     const items=[];
     o.days.forEach((l,i)=>(Array.isArray(l)?l:[]).forEach(e=>items.push(norm({...e,day:i}))));
-    return{items,week:null};
+    return{items,week:null,...ext({})};
   }
   return null;
 }
-let S=fromAny(load(KEY))||fromAny(load('workout-v2'))||fromAny(load('workout-v1'))||{items:[],week:null};
+let S=fromAny(load(KEY))||fromAny(load('workout-v2'))||fromAny(load('workout-v1'))||{items:[],week:null,...ext({})};
 const todayIdx=()=>(new Date().getDay()+6)%7;
 let tab='today',filter='all',viewDay=todayIdx();
 const opened=new Set();
@@ -176,9 +225,10 @@ function card(e,plan){
 function viewToday(){
   const l=S.items.filter(e=>e.day===viewDay),isT=viewDay===todayIdx();
   const tot=l.reduce((a,e)=>a+e.sets.length,0),dn=l.reduce((a,e)=>a+e.sets.filter(s=>s.d).length,0);
-  return `<div class="th"><button class="nv" data-vd="-1" aria-label="Предыдущий день">‹</button><div><h1>${isT?'Сегодня':FULL[viewDay]}</h1><div class="sub">${isT?FULL[viewDay]+' · ':''}${l.length?l.filter(isDone).length+' из '+l.length+' упражнений':'отдых'}</div></div><button class="nv" data-vd="1" aria-label="Следующий день">›</button></div>`
+  return `<div class="th"><button class="nv" data-vd="-1" aria-label="Предыдущий день">‹</button><div><h1>${isT?'Сегодня':FULL[viewDay]}</h1><div class="sub">${isT?FULL[viewDay]+' · ':''}${l.length?l.filter(isDone).length+' из '+l.length+' упражнений':(S.plan[viewDay]?'бег по плану':'отдых')}</div></div><button class="nv" data-vd="1" aria-label="Следующий день">›</button></div>`
+    +todayExtra(isT)
     +(tot?`<div class="pb"><i style="width:${Math.round(dn/tot*100)}%"></i></div>`:'')
-    +(l.length?l.map(e=>card(e,false)).join(''):'<p class="empty">На этот день ничего не запланировано.<br><br><button class="pill acc" data-tab="plan">Открыть план</button></p>');
+    +(l.length?l.map(e=>card(e,false)).join(''):(S.plan[viewDay]?'':'<p class="empty">На этот день ничего не запланировано.<br><br><button class="pill acc" data-tab="plan">Открыть план</button></p>'));
 }
 function viewPlan(){
   const chips=DAYS.map((d,i)=>{
@@ -194,7 +244,7 @@ function viewPlan(){
   });
   if(!S.items.length)html='<p class="empty">Пока нет упражнений.<br>Нажми «Добавить упражнение» и составь свой недельный план.</p>';
   return `<div id="bar"><div id="tabs">${chips}</div><div id="sub"><button class="pill${filter==='all'?' on':''}" data-filter="all">Все</button><button class="pill${filter==='none'?' on':''}" data-filter="none" data-drop="none">Без дня</button></div></div>`
-    +html+'<button class="add" data-act="add">+ Добавить упражнение</button><button class="link" data-act="data">Данные и новая неделя</button>';
+    +html+'<button class="add" data-act="add">+ Добавить упражнение</button>'+runPlanCard()+'<button class="link" data-act="data">Данные и новая неделя</button>';
 }
 function viewMuscles(){
   const m=new Map();
@@ -218,9 +268,10 @@ function updateDL(){
   $('#groups').innerHTML=all.map(g=>`<option value="${esc(g)}">`).join('');
 }
 function render(focusId){
-  $('#view').innerHTML=tab==='today'?viewToday():tab==='plan'?viewPlan():viewMuscles();
+  $('#view').innerHTML=tab==='today'?viewToday():tab==='plan'?viewPlan():tab==='run'?viewRun():tab==='steps'?viewSteps():viewMuscles();
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
   updateDL();
+  if(tab==='run')paintRun();
   if(focusId){const el=document.querySelector(`[data-id="${focusId}"][data-f="n"]`);if(el)el.focus()}
 }
 
@@ -228,7 +279,7 @@ document.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-act],[data-day],[data-filter],[data-tab],[data-vd]');
   if(!b)return;
   const D=b.dataset,a=D.act;
-  if(D.tab){tab=D.tab;render();window.scrollTo(0,0);return}
+  if(D.tab){if(D.tab==='run')openRun=null;tab=D.tab;render();window.scrollTo(0,0);return}
   if(D.day!==undefined){const d=+D.day;filter=filter===d?'all':d;render();return}
   if(D.filter){filter=D.filter;render();return}
   if(D.vd){viewDay=(viewDay+ +D.vd+7)%7;render();return}
@@ -311,14 +362,7 @@ $('#cp').onclick=async()=>{
   try{await navigator.clipboard.writeText(t.value)}catch(e){t.select();document.execCommand('copy')}
   $('#cp').textContent='Скопировано';setTimeout(()=>$('#cp').textContent='Скопировать',1500);
 };
-$('#rs').onclick=()=>{
-  try{
-    const d=fromAny(JSON.parse($('#bk').value));
-    if(!d)throw 0;
-    if(!confirm('Заменить текущие данные восстановленными?'))return;
-    S=d;save();checkWeek();render();$('#dlg').close();
-  }catch(e){alert('Не получилось прочитать текст. Вставь его целиком, как скопировал.')}
-};
+$('#rs').onclick=()=>restoreFrom($('#bk').value);
 $('#rst').onclick=()=>{
   if(!confirm('Снять отметки «выполнено» со всех подходов? План, повторы и веса останутся.'))return;
   S.items.forEach(e=>e.sets.forEach(s=>s.d=false));save();render();$('#dlg').close();
@@ -327,9 +371,314 @@ document.addEventListener('visibilitychange',()=>{
   if(!document.hidden&&checkWeek()){viewDay=todayIdx();render();toast('Новая неделя: отметки сняты')}
 });
 
+
+/* ===== Бег и шаги ===== */
+const Cap=window.Capacitor,isNative=!!(Cap&&Cap.isNativePlatform&&Cap.isNativePlatform());
+const BG=isNative?Cap.registerPlugin('BackgroundGeolocation'):null;
+const StepsP=isNative?Cap.registerPlugin('Steps'):null;
+const RKEY='workout-run-active';
+const RAD=Math.PI/180,ER=6371000;
+let RUN=load(RKEY),WID=null,openRun=null,stepsErr=null,lastSave=0;
+const dkey=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const fmtN=n=>Math.round(n).toLocaleString('ru-RU');
+const fmtKm=m=>(m/1000).toFixed(2).replace('.',',');
+const fmtDur=s=>{s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),c=s%60;return(h?h+':'+String(m).padStart(2,'0'):String(m))+':'+String(c).padStart(2,'0')};
+const fmtPace=s=>(!s||!isFinite(s)||s>3600)?'–':Math.floor(s/60)+':'+String(Math.round(s%60)).padStart(2,'0');
+function hav(a,b){const dl=(b[0]-a[0])*RAD,dn=(b[1]-a[1])*RAD,x=Math.sin(dl/2)**2+Math.cos(a[0]*RAD)*Math.cos(b[0]*RAD)*Math.sin(dn/2)**2;return 2*ER*Math.asin(Math.min(1,Math.sqrt(x)))}
+function simplify(p,tol){
+  if(p.length<3)return p;
+  const kx=Math.cos(p[0][0]*RAD)*ER*RAD,ky=ER*RAD,X=p.map(q=>[q[1]*kx,q[0]*ky]),keep=new Uint8Array(p.length);
+  keep[0]=keep[p.length-1]=1;
+  const st=[[0,p.length-1]];
+  while(st.length){
+    const[a,b]=st.pop(),ax=X[a][0],ay=X[a][1],dx=X[b][0]-ax,dy=X[b][1]-ay,l2=dx*dx+dy*dy;
+    let md=0,mi=-1;
+    for(let i=a+1;i<b;i++){
+      let t=l2?((X[i][0]-ax)*dx+(X[i][1]-ay)*dy)/l2:0;t=Math.max(0,Math.min(1,t));
+      const px=ax+t*dx-X[i][0],py=ay+t*dy-X[i][1],d=Math.sqrt(px*px+py*py);
+      if(d>md){md=d;mi=i}
+    }
+    if(md>tol&&mi>0){keep[mi]=1;st.push([a,mi],[mi,b])}
+  }
+  return p.filter((_,i)=>keep[i]);
+}
+function routeSVG(pts,w,h){
+  w=w||320;h=h||200;
+  if(!pts||pts.length<2)return'<div class="empty" style="padding:50px 0">Маршрут появится, когда телефон поймает GPS</div>';
+  const pad=18,k=Math.cos(pts[0][0]*RAD);
+  const xy=pts.map(p=>[p[1]*k,-p[0]]);
+  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+  xy.forEach(q=>{x0=Math.min(x0,q[0]);x1=Math.max(x1,q[0]);y0=Math.min(y0,q[1]);y1=Math.max(y1,q[1])});
+  const dx=Math.max(x1-x0,1e-5),dy=Math.max(y1-y0,1e-5),sc=Math.min((w-2*pad)/dx,(h-2*pad)/dy);
+  const ox=(w-dx*sc)/2,oy=(h-dy*sc)/2,P=xy.map(q=>[ox+(q[0]-x0)*sc,oy+(q[1]-y0)*sc]);
+  const d=P.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' '),s=P[0],e=P[P.length-1];
+  let g='';
+  for(let i=1;i<4;i++)g+=`<line x1="0" y1="${h*i/4}" x2="${w}" y2="${h*i/4}"/><line x1="${w*i/4}" y1="0" x2="${w*i/4}" y2="${h}"/>`;
+  return`<svg class="rm" viewBox="0 0 ${w} ${h}" role="img" aria-label="Маршрут"><g stroke="var(--line)" stroke-width="1">${g}</g><polyline points="${d}" fill="none" stroke="var(--acc)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${s[0]}" cy="${s[1]}" r="6" fill="var(--ok)" stroke="var(--card)" stroke-width="2"/><circle cx="${e[0]}" cy="${e[1]}" r="7" fill="var(--acc)" stroke="var(--card)" stroke-width="2"/></svg>`;
+}
+const weekStart=()=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime()};
+const weekRuns=()=>S.runs.filter(r=>r.start>=weekStart());
+const runDayKm=i=>weekRuns().filter(r=>(new Date(r.start).getDay()+6)%7===i).reduce((a,r)=>a+r.dist,0);
+const elapsed=()=>RUN?((RUN.pausedAt||Date.now())-RUN.t0-RUN.pauseMs)/1000:0;
+function curSpeed(){
+  const p=RUN.pts;if(p.length<2)return 0;
+  const e=p[p.length-1];if(Date.now()-e[2]>30000)return 0;
+  let i=p.length-2;while(i>0&&e[2]-p[i][2]<20000)i--;
+  const dt=(e[2]-p[i][2])/1000;if(dt<=0)return 0;
+  let d=0;for(let k=i;k<p.length-1;k++)d+=hav(p[k],p[k+1]);
+  return d/dt;
+}
+function saveRunNow(){
+  if(!RUN)return;RUN.seen=Date.now();lastSave=RUN.seen;
+  try{localStorage.setItem(RKEY,JSON.stringify(RUN))}catch(e){}
+}
+function onLoc(l){
+  if(!RUN)return;
+  RUN.acc=l.accuracy;
+  if(RUN.pausedAt||!(l.accuracy<=35))return;
+  const t=l.time||Date.now(),p=[l.latitude,l.longitude,t],last=RUN.pts[RUN.pts.length-1];
+  if(!last||RUN.brk){RUN.pts.push(p);RUN.brk=false}
+  else{
+    const d=hav(last,p),dt=(t-last[2])/1000;
+    if(dt<=0||d<3||d/dt>12)return;
+    RUN.dist+=d;RUN.pts.push(p);
+  }
+  if(Date.now()-lastSave>8000)saveRunNow();
+}
+async function startWatch(){
+  if(WID!==null)return;
+  if(isNative){
+    try{
+      WID=await BG.addWatcher({backgroundTitle:'Тренировки',backgroundMessage:'Идёт запись пробежки',requestPermissions:true,stale:false,distanceFilter:3},(loc,err)=>{
+        if(err){
+          if(err.code==='NOT_AUTHORIZED'&&confirm('Нужен доступ к геолокации. Открыть настройки?'))BG.openSettings();
+          return;
+        }
+        onLoc(loc);
+      });
+    }catch(e){toast('Не удалось включить GPS')}
+  }else if(navigator.geolocation){
+    WID=navigator.geolocation.watchPosition(p=>onLoc({latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy,time:p.timestamp}),e=>toast('GPS: '+e.message),{enableHighAccuracy:true,maximumAge:0});
+  }
+}
+async function stopWatch(){
+  const id=WID;WID=null;if(id===null)return;
+  try{if(isNative)await BG.removeWatcher({id});else navigator.geolocation.clearWatch(id)}catch(e){}
+}
+async function startRun(){
+  if(RUN)return;
+  if(StepsP){try{await StepsP.requestNotifications()}catch(e){}}
+  RUN={id:uid(),t0:Date.now(),pauseMs:0,pausedAt:null,pts:[],dist:0,acc:null,brk:false,day:todayIdx()};
+  saveRunNow();tab='run';openRun=null;render();await startWatch();
+}
+function pauseRun(){
+  if(!RUN)return;
+  if(RUN.pausedAt){RUN.pauseMs+=Date.now()-RUN.pausedAt;RUN.pausedAt=null;RUN.brk=true;startWatch()}
+  else RUN.pausedAt=Date.now();
+  saveRunNow();render();
+}
+async function stopRun(){
+  if(!RUN)return;
+  const el=elapsed();
+  if(RUN.dist<30||RUN.pts.length<2){
+    if(!confirm('Пробежка очень короткая. Не сохранять её?'))return;
+    await stopWatch();RUN=null;localStorage.removeItem(RKEY);render();return;
+  }
+  if(!confirm('Завершить и сохранить пробежку?'))return;
+  await stopWatch();
+  const pts=simplify(RUN.pts,2).map(p=>[+p[0].toFixed(6),+p[1].toFixed(6),p[2]]);
+  const r={id:RUN.id,start:RUN.t0,dur:Math.round(el),dist:Math.round(RUN.dist),pts};
+  S.runs.unshift(r);save();
+  RUN=null;localStorage.removeItem(RKEY);
+  openRun=r.id;tab='run';render();toast('Пробежка сохранена');
+}
+function splits(r){
+  const p=r.pts,out=[];if(p.length<2)return out;
+  let len=0;for(let i=1;i<p.length;i++)len+=hav(p[i-1],p[i]);
+  const f=len?r.dist/len:1;let cum=0,next=1000,tPrev=p[0][2];
+  for(let i=1;i<p.length;i++){
+    const d=hav(p[i-1],p[i])*f;
+    while(d>0&&cum+d>=next){
+      const fr=(next-cum)/d,tAt=p[i-1][2]+fr*(p[i][2]-p[i-1][2]);
+      out.push((tAt-tPrev)/1000);tPrev=tAt;next+=1000;
+    }
+    cum+=d;
+  }
+  return out;
+}
+function toGPX(r){
+  const iso=ms=>new Date(ms).toISOString();
+  return'<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Trenirovki" xmlns="http://www.topografix.com/GPX/1/1">\n<trk><name>Пробежка '+iso(r.start).slice(0,10)+'</name><trkseg>\n'
+    +r.pts.map(p=>`<trkpt lat="${p[0]}" lon="${p[1]}"><time>${iso(p[2])}</time></trkpt>`).join('\n')+'\n</trkseg></trk>\n</gpx>\n';
+}
+async function saveFile(name,text,mime){
+  if(isNative){
+    try{
+      const FS=Cap.registerPlugin('Filesystem'),SH=Cap.registerPlugin('Share');
+      const w=await FS.writeFile({path:name,data:text,directory:'CACHE',encoding:'utf8'});
+      await SH.share({title:name,files:[w.uri]});
+    }catch(e){if(!/cancel/i.test(String(e&&e.message||e)))toast('Не получилось сохранить файл')}
+    return;
+  }
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:mime}));a.download=name;
+  document.body.appendChild(a);a.click();a.remove();
+}
+function runStats(){
+  const el=elapsed(),d=RUN.dist,sp=curSpeed(),plan=S.plan[todayIdx()];
+  return{el,d,pace:d>20?el/(d/1000):0,kmh:sp*3.6,left:plan?Math.max(0,plan*1000-d-runDayKm(todayIdx())):null};
+}
+function gpsPill(){
+  const a=RUN&&RUN.acc;
+  if(a==null)return'<span class="gps" id="gps">Ищем сигнал…</span>';
+  return a<=20?'<span class="gps ok" id="gps">GPS: хороший</span>':'<span class="gps" id="gps">GPS: слабый</span>';
+}
+function paintRun(){
+  if(!RUN||!$('#rt'))return;
+  const s=runStats(),set=(i,v)=>{const e=$('#'+i);if(e)e.textContent=v};
+  set('rt',fmtDur(s.el));set('rd',fmtKm(s.d));set('rp',fmtPace(s.pace));set('rs',s.kmh.toFixed(1).replace('.',','));
+  if(s.left!==null)set('rl',fmtKm(s.left));
+  const g=$('#gps');if(g){const a=RUN.acc;g.textContent=a==null?'Ищем сигнал…':a<=20?'GPS: хороший':'GPS: слабый';g.className='gps'+(a!=null&&a<=20?' ok':'')}
+  const m=$('#rmap');if(m&&(paintRun.n=(paintRun.n||0)+1)%4===1)m.innerHTML=routeSVG(RUN.pts);
+}
+function viewRun(){
+  if(RUN){
+    const s=runStats(),pl=S.plan[todayIdx()],paused=!!RUN.pausedAt;
+    return`<div class="th"><div><h1>${paused?'Пауза':'Пробежка'}</h1><div class="sub">${gpsPill()}</div></div></div>`
+      +`<div class="bigt" id="rt">${fmtDur(s.el)}</div>`
+      +`<div class="mg"><div class="mt"><small>Дистанция, км</small><b id="rd">${fmtKm(s.d)}</b></div><div class="mt"><small>Средний темп, /км</small><b id="rp">${fmtPace(s.pace)}</b></div>`
+      +`<div class="mt"><small>Скорость, км/ч</small><b id="rs">${s.kmh.toFixed(1).replace('.',',')}</b></div>`
+      +(s.left!==null?`<div class="mt"><small>До цели, км</small><b id="rl">${fmtKm(s.left)}</b></div>`:'<div class="mt"><small>Точек маршрута</small><b>'+RUN.pts.length+'</b></div>')+'</div>'
+      +`<div class="rmap" id="rmap">${routeSVG(RUN.pts)}</div>`
+      +`<div class="bgrid"><button class="btn sec" data-r="pause">${paused?'Продолжить':'Пауза'}</button><button class="btn out" data-r="stop">Стоп</button></div>`
+      +(paused&&RUN.seen&&!WID?'<p class="sub" style="text-align:center">Запись была прервана. Нажми «Продолжить» или «Стоп», чтобы сохранить то, что записано.</p>':'<p class="sub" style="text-align:center">Запись идёт и при выключенном экране.</p>');
+  }
+  if(openRun){
+    const r=S.runs.find(x=>x.id===openRun);
+    if(r){
+      const d=new Date(r.start),pace=r.dist>0?r.dur/(r.dist/1000):0,sp=splits(r);
+      return`<div class="th"><button class="nv" data-r="back" aria-label="Назад">‹</button><div><h1>${fmtKm(r.dist)} км</h1><div class="sub">${d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'})}, ${d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</div></div></div>`
+        +`<div class="rmap">${routeSVG(r.pts)}</div>`
+        +`<div class="mg"><div class="mt"><small>Время</small><b>${fmtDur(r.dur)}</b></div><div class="mt"><small>Средний темп, /км</small><b>${fmtPace(pace)}</b></div><div class="mt"><small>Скорость, км/ч</small><b>${r.dur?(r.dist/r.dur*3.6).toFixed(1).replace('.',','):'–'}</b></div><div class="mt"><small>Точек маршрута</small><b>${r.pts.length}</b></div></div>`
+        +(sp.length?'<h2 class="gh">Километры</h2><div class="card2">'+sp.map((t,i)=>`<div class="spl"><span>${i+1} км</span><span>${fmtPace(t)} /км</span></div>`).join('')+'</div>':'')
+        +`<div class="bgrid" style="margin-top:14px"><button class="btn sec" data-r="gpx">Сохранить GPX</button><button class="btn out" data-r="delrun">Удалить</button></div>`;
+    }
+    openRun=null;
+  }
+  const wr=weekRuns(),km=wr.reduce((a,r)=>a+r.dist,0),pl=S.plan[todayIdx()];
+  return`<div class="th"><div><h1>Бег</h1><div class="sub">За неделю: ${fmtKm(km)} км · ${wr.length} ${wr.length===1?'пробежка':'пробежек'}</div></div></div>`
+    +(pl?`<div class="rc"><div class="rrow"><div><b>Сегодня по плану</b><span class="sub">${fmtKm(pl*1000)} км · сделано ${fmtKm(runDayKm(todayIdx()))} км</span></div></div></div>`:'')
+    +'<button class="btn wide" data-r="start">Начать пробежку</button>'
+    +(isNative?'':'<p class="sub" style="text-align:center">В браузере GPS работает только пока вкладка открыта.</p>')
+    +'<h2 class="gh">Прошлые пробежки</h2>'
+    +(S.runs.length?'<div class="card2">'+S.runs.slice(0,30).map(r=>{const d=new Date(r.start),p=r.dist>0?r.dur/(r.dist/1000):0;return`<button class="rli" data-r="open" data-rid="${r.id}"><span><b>${fmtKm(r.dist)} км</b><small>${d.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'})} · ${fmtDur(r.dur)}</small></span><span class="sub">${fmtPace(p)} /км ›</span></button>`}).join('')+'</div>':'<p class="empty">Пока нет пробежек.<br>Нажми «Начать пробежку», когда выйдешь на улицу.</p>');
+}
+
+/* Шагомер */
+const stepsToday=()=>S.steps[dkey()]||0;
+async function syncSteps(){
+  if(!StepsP)return;
+  let c;
+  try{c=(await StepsP.getCounter()).counter;stepsErr=null}
+  catch(e){stepsErr=String(e&&(e.message||e.code)||e);paintSteps(true);return}
+  const k=dkey();
+  if(!S.sst)S.sst={c:c};
+  const delta=c>=S.sst.c?c-S.sst.c:c;
+  if(delta>0)S.steps[k]=(S.steps[k]||0)+Math.round(delta);
+  else if(S.steps[k]===undefined)S.steps[k]=0;
+  S.sst.c=c;
+  const keys=Object.keys(S.steps).sort();
+  while(keys.length>400)delete S.steps[keys.shift()];
+  save();paintSteps();
+}
+function paintSteps(force){
+  const n=stepsToday(),g=S.cfg.goal||10000,pct=Math.min(100,Math.round(n/g*100));
+  const a=$('#stT');if(a)a.textContent=fmtN(n)+' из '+fmtN(g);
+  const b=$('#stB');if(b)b.style.width=pct+'%';
+  if(tab==='steps'){
+    const ae=document.activeElement;
+    if((force||paintSteps.last!==n)&&!(ae&&ae.tagName==='INPUT')){paintSteps.last=n;render()}
+  }
+}
+function viewSteps(){
+  const n=stepsToday(),g=S.cfg.goal||10000,pct=Math.min(1,n/g),C=2*Math.PI*70,km=n*(S.cfg.stride||75)/100000;
+  const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push({d,v:S.steps[dkey(d)]||0})}
+  const mx=Math.max(g,...days.map(x=>x.v)),avg=days.reduce((a,x)=>a+x.v,0)/7;
+  let msg='';
+  if(!isNative)msg='Шаги считаются только в установленном приложении на телефоне.';
+  else if(stepsErr&&/no_sensor/.test(stepsErr))msg='В этом телефоне нет датчика шагов.';
+  else if(stepsErr&&/permission/.test(stepsErr))msg='Нет доступа к датчику шагов. Разреши «Физическая активность» в настройках приложения.';
+  else if(stepsErr)msg='Не удалось прочитать датчик шагов. Попробуй ещё раз.';
+  return`<div class="th"><div><h1>Шаги</h1><div class="sub">Считает датчик телефона, интернет не нужен</div></div></div>`
+    +(msg?`<div class="warn">${msg}${isNative?'<br><button class="pill acc" style="margin-top:8px" data-r="stepsretry">Проверить снова</button>':''}</div>`:'')
+    +`<div class="ringw"><svg class="ring" viewBox="0 0 180 180"><circle cx="90" cy="90" r="70" fill="none" stroke="var(--line)" stroke-width="14"/><circle cx="90" cy="90" r="70" fill="none" stroke="var(--ok)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${(C*pct).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 90 90)"/><text x="90" y="92" text-anchor="middle" font-size="32" font-weight="700" fill="var(--ink)" stroke="none">${fmtN(n)}</text><text x="90" y="116" text-anchor="middle" font-size="13" fill="var(--mute)" stroke="none">из ${fmtN(g)}</text></svg></div>`
+    +`<div class="mg"><div class="mt"><small>Пройдено, км</small><b>${km.toFixed(1).replace('.',',')}</b></div><div class="mt"><small>В среднем за 7 дней</small><b>${fmtN(avg)}</b></div></div>`
+    +'<h2 class="gh">Последние 7 дней</h2><div class="card2" style="padding:10px 14px 12px"><div class="sbar">'
+    +days.map((x,i)=>`<div><i class="${i===6?'t':x.v>=g?'g':''}" style="height:${Math.max(2,Math.round(x.v/mx*84))}px"></i><span>${DAYS[(x.d.getDay()+6)%7]}</span></div>`).join('')+'</div></div>'
+    +'<h2 class="gh">Настройки</h2><div class="card2" style="padding:12px 14px"><div class="cfg"><label>Цель, шагов в день<input data-cfg="goal" inputmode="numeric" value="'+g+'"></label><label>Длина шага, см<input data-cfg="stride" inputmode="numeric" value="'+(S.cfg.stride||75)+'"></label></div></div>';
+}
+function todayExtra(isT){
+  let h='';
+  if(isT&&StepsP){
+    const n=stepsToday(),g=S.cfg.goal||10000;
+    h+=`<div class="rc" data-tab="steps" style="cursor:pointer"><div class="rrow"><b>Шаги</b><span class="sub" id="stT">${fmtN(n)} из ${fmtN(g)}</span></div><div class="pb"><i id="stB" style="width:${Math.min(100,Math.round(n/g*100))}%"></i></div></div>`;
+  }
+  const pl=S.plan[viewDay],dn=runDayKm(viewDay);
+  if(isT||pl){
+    h+=`<div class="rc"><div class="rrow"><div><b>Бег${pl?' · цель '+fmtKm(pl*1000)+' км':''}${pl&&dn>=pl*1000?' ✓':''}</b><span class="sub">${dn>0?'сделано '+fmtKm(dn)+' км':'пока без пробежек'}</span></div>`
+      +(isT?`<button class="btn" data-r="start">${RUN?'К пробежке':'Начать'}</button>`:'')+'</div>'
+      +(pl?`<div class="pb"><i style="width:${Math.min(100,Math.round(dn/(pl*1000)*100))}%"></i></div>`:'')+'</div>';
+  }
+  return h;
+}
+function runPlanCard(){
+  return'<h2 class="gh">Пробежки по неделе<small>км на день</small></h2><div class="card2"><div class="rp">'
+    +DAYS.map((d,i)=>`<label>${d}<input data-rp="${i}" inputmode="decimal" placeholder="–" value="${S.plan[i]||''}"></label>`).join('')+'</div></div>';
+}
+function restoreFrom(txt){
+  try{
+    const d=fromAny(JSON.parse(txt));
+    if(!d)throw 0;
+    if(!confirm('Заменить текущие данные восстановленными?'))return;
+    S=d;save();checkWeek();render();$('#dlg').close();toast('Данные восстановлены');
+  }catch(e){alert('Не получилось прочитать данные. Проверь, что файл или текст целые.')}
+}
+document.addEventListener('click',async ev=>{
+  const b=ev.target.closest('[data-r]');if(!b)return;
+  const a=b.dataset.r;
+  if(a==='start'){if(RUN){tab='run';openRun=null;render()}else await startRun()}
+  else if(a==='pause')pauseRun();
+  else if(a==='stop')stopRun();
+  else if(a==='open'){openRun=b.dataset.rid;render();window.scrollTo(0,0)}
+  else if(a==='back'){openRun=null;render()}
+  else if(a==='gpx'){const r=S.runs.find(x=>x.id===openRun);if(r)saveFile('probezhka-'+dkey(new Date(r.start))+'.gpx',toGPX(r),'application/gpx+xml')}
+  else if(a==='delrun'){if(confirm('Удалить эту пробежку?')){S.runs=S.runs.filter(x=>x.id!==openRun);openRun=null;save();render()}}
+  else if(a==='stepsretry')syncSteps();
+});
+document.addEventListener('input',ev=>{
+  const t=ev.target;
+  if(t.dataset.rp!==undefined){const v=parseFloat(String(t.value).replace(',','.'));S.plan[+t.dataset.rp]=v>0?v:null;save();return}
+  if(t.dataset.cfg){const v=parseFloat(String(t.value).replace(',','.'));if(v>0){S.cfg[t.dataset.cfg]=v;save();if(t.dataset.cfg==='goal')paintSteps()}}
+});
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){saveRunNow()}
+  else{syncSteps();if(tab==='run')render()}
+});
+$('#sv').onclick=()=>saveFile('treni-backup-'+dkey()+'.json',JSON.stringify(S),'application/json');
+$('#ld').onclick=()=>$('#bf').click();
+$('#bf').onchange=async ev=>{
+  const f=ev.target.files[0];ev.target.value='';
+  if(f)restoreFrom(await f.text());
+};
+function initRunSteps(){
+  if(RUN&&!RUN.pausedAt)RUN.pausedAt=RUN.seen||Date.now();
+  setInterval(()=>{if(RUN&&tab==='run')paintRun()},1000);
+  if(StepsP){syncSteps();setInterval(()=>{if(!document.hidden)syncSteps()},15000)}
+}
+
 const newWeek=checkWeek();
 render();
 if(newWeek)toast('Новая неделя: отметки сняты');
+initRunSteps();
 </script>
 </body>
 </html>
